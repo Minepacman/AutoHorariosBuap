@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilos/style.css">
+    <script src="JS/jquery-3.7.1.min.js"></script> 
+    <title>Document</title>
+</head>
+<body>
+    
+    <header>
+        <div id="logo">
+            <img src="jpg/logo2.png" alt="Logo de la Universidad">
+        </div>
+        <h1 id="titulo">Auto Horario BUAP</h1>
+    </header>
+
+    <div id="contenido">
+
+        <div id="selects">
+            <label id="tnrc" for="nrc_B">Bloqueo de NRC</label>
+            <input type="text" name="nrc" id="nrc_B" placeholder="Ingresa el NRC" title="NRC">
+        </div>
+    
+        <button class="button-19" role="button" onclick="redirigirAPagina()">Bloquear</button>
+
+    
+        <div id="tablas">
+            
+        </div>
+
+    </div>
+ 
+ 
+<script>
+
+$(document).ready(function () {
+    validacionDatos();
+});
+
+
+function redirigirAPagina() {
+    const nrcsBloqueados = $('#nrc_B').val().split(' ').filter(nrc => nrc.trim() !== '');
+
+    if (nrcsBloqueados.length > 0) {
+        // Bloquear los NRCs
+        bloquearNRCs(nrcsBloqueados);
+
+        // Recargar la página
+        location.reload();
+    } else {
+        alert('Ingresa al menos un NRC antes de bloquear.');
+    }
+}
+
+function bloquearNRCs(nrcs) {
+    const nrcsAntiguos = sessionStorage.getItem('nrcsBloqueados') || '';
+    const nuevosNRCs = [...new Set([...nrcsAntiguos.split(' '), ...nrcs])].join(' ');
+    sessionStorage.setItem('nrcsBloqueados', nuevosNRCs);
+}
+
+
+function validacionDatos() {
+    const carreraSeleccionada = sessionStorage.getItem('carreraSeleccionada');
+    const materiasSeleccionadas = sessionStorage.getItem('materiasSeleccionadas');
+    const turnoSeleccionado = sessionStorage.getItem('turnoSeleccionado');
+    const nrcsBloqueados = sessionStorage.getItem('nrcsBloqueados') || '';
+
+    console.log('carreraSeleccionada:', carreraSeleccionada);
+    console.log('materiasSeleccionadas:', materiasSeleccionadas);
+    console.log('turnoSeleccionado:', turnoSeleccionado);
+
+    if (!carreraSeleccionada || !materiasSeleccionadas || !turnoSeleccionado) {
+        console.error('Error: Alguno de los valores de sesión es nulo o indefinido.');
+        return;
+    }
+
+    $.ajax({
+        url: 'get_materias.php',
+        type: 'GET',
+        data: {
+            carreraSeleccionada: carreraSeleccionada,
+            materiasSeleccionadas: materiasSeleccionadas,
+            turnoSeleccionado: turnoSeleccionado
+        },
+        dataType: 'json',
+        success: function (data) {
+            if (!data || typeof data !== 'object') {
+                console.error('Error: La respuesta del servidor no es válida.');
+                return;
+            }
+
+            console.log('Datos obtenidos con éxito:', data);
+
+            // Filtrar horarios excluyendo los NRCs bloqueados
+            const horariosFiltrados = data.filter(item => !nrcsBloqueados.split(' ').includes(item.NRC));
+
+            procesarHorarios(horariosFiltrados);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error en la solicitud AJAX:', status, error);
+            console.error('Respuesta del servidor:', xhr.responseText);
+        }
+    });
+}
+
+function procesarHorarios(data) {
+    const tablasDiv = $('#tablas');
+    tablasDiv.empty();
+
+    if (data.error) {
+        console.error('Error al procesar los horarios:', data.error);
+        // Puedes mostrar un mensaje al usuario u otra acción apropiada aquí.
+        return;
+    }
+
+    const horarios = data;
+    const materiasSeleccionadas = JSON.parse(sessionStorage.getItem('materiasSeleccionadas'));
+
+    if (!Array.isArray(horarios) || horarios.length === 0) {
+        console.warn('Advertencia: No se encontraron horarios para la selección actual.');
+        // Puedes mostrar un mensaje al usuario u otra acción apropiada aquí.
+        return;
+    }
+
+    const tabla = $('<table>').addClass('horario-table');
+    const encabezado = $('<tr>');
+    encabezado.append($('<th>').text('Hora').addClass('header-cell'));
+
+    ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'].forEach(dia => {
+        encabezado.append($('<th>').text(dia).addClass('header-cell'));
+    });
+
+    tabla.append(encabezado);
+
+    for (let hora = 7; hora <= 21; hora++) {
+        const horaInicio = hora.toString();
+        const horaFin = (hora + 1).toString();
+        tabla.append(crearFilaHora(`${horaInicio}-${horaFin}`, horarios, horaInicio, horaFin, materiasSeleccionadas));
+    }
+
+    tablasDiv.append(tabla);
+}
+
+
+function crearFilaHora(horaInicioFin, horarios, horaInicio, horaFin, materiasSeleccionadas, nrcBloqueado) {
+    const clavesSeleccionadasSet = new Set(materiasSeleccionadas.map(clave => clave.toUpperCase()));
+    const filaHora = $('<tr>').append($('<td>').text(horaInicioFin).addClass('data-cell'));
+
+    ['L', 'A', 'M', 'J', 'V', 'S'].forEach(dia => {
+        const materiasEnHora = horarios.filter(item => {
+            const claveEnMayusculas = item.Clave.toUpperCase();
+            return item.Dias && item.Dias.includes(dia) &&
+                item.Hora >= horaInicio && item.Hora < horaFin &&
+                clavesSeleccionadasSet.has(claveEnMayusculas) &&
+                claveEnMayusculas !== nrcBloqueado; // Verifica si la clave no está bloqueada
+        });
+
+        const celda = $('<td>').addClass('data-cell');
+
+        if (materiasEnHora.length > 0) {
+            const infoMaterias = materiasEnHora.map(materia =>
+                `${materia.NRC} - ${materia.Materia} - ${materia.Profesor} -${materia.Hora}- Salón ${materia.Salon}`
+            ).join('<br>');
+
+            const divInfoMaterias = $('<div>').html(infoMaterias);
+            celda.append(divInfoMaterias);
+        } else {
+            celda.text('X');
+        }
+
+        filaHora.append(celda);
+    });
+
+    return filaHora;
+}
+</script>
+</body>
+</html>

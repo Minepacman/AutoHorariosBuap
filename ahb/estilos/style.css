@@ -1,0 +1,239 @@
+/* estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-height: 100px;
+  padding: 0 10px;
+  background-color: #002b47;
+  margin: 0;
+  border: 0;
+}
+
+
+/* Estilo general para la tabla */
+.horario-table {
+  width: 100%;
+  max-width: 100%; /* Ajusta el ancho máximo de la tabla */
+  table-layout: fixed; /* Fuerza a la tabla a usar un ancho fijo */
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow-x: auto; /* Agrega una barra de desplazamiento horizontal si es necesario */
+}
+/* Estilo para las celdas del encabezado */
+.header-cell {
+  background-color: #f2f2f2;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+  border: 1px solid #ddd;
+  white-space: nowrap; /* Evita el salto de línea en el encabezado */
+}
+
+/* Estilo para las celdas de datos */
+.data-cell {
+  text-align: center;
+  padding: 8px;
+  position: relative; position: relative;
+  border: 1px solid #ddd;
+}
+
+.data-cell:hover div {
+  max-width: 100%; /* La celda se expandirá al 100% del ancho del contenedor */
+  white-space: normal; /* Permite que el contenido se ajuste al ancho del contenedor */
+  background-color: #e0e0e0; /* Cambia el fondo al pasar el ratón (opcional) */
+  z-index: 1; /* Asegura que la celda con información se superponga a otras celdas */
+}
+/* Estilo para las celdas con información de materias */
+.data-cell div {
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: max-width 0.3s; /* Añadir transición para una animación suave */
+}
+
+
+/* Estilo para la fila de horas */
+.data-cell:first-child {
+  background-color: #e6e6e6;
+}
+
+/* Estilo para las celdas con la letra 'X' (sin datos) */
+.data-cell:empty::before {
+  content: 'X';
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+#contenido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 1500px;
+  margin: 20px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.selects {
+  margin-bottom: 20px;
+}
+
+#botones {
+  margin-top: 10px;
+}
+
+#select_materias1,
+#select_materias2,
+#busqueda {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+button {
+  background-color: #002b47;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #011e31;
+}
+
+#selects{
+margin-top: 20px;
+
+}
+
+#logo {
+    order: 1;
+    max-width: 100px;
+    margin-right: 30px;
+}
+
+#logo img {
+    max-width: 100%;
+    height: auto;
+}
+
+#titulo {
+    text-align: center; 
+    color: white;
+    font-family: sans-serif;
+    border-radius: 5px;
+    flex-grow: 1; 
+}
+#parrafos {
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333; /* Cambia esto al color de texto que prefieras */
+
+}
+
+#parrafos p {
+  margin-bottom: 5px; /* Añade espacio entre párrafos */
+}
+
+
+select,
+input[type="text"] { 
+    margin: 8px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px; 
+}
+
+input[type="radio"] {
+  margin: 10px;
+}
+
+/* estilos de lo botones  */
+.button-19 {
+    appearance: button;
+    background-color: #00101b;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: inline-block;
+    font-family: din-round,sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    line-height: 20px;
+    margin: 10px;
+    outline: none;
+    overflow: visible;
+    padding: 10px 15px;
+    text-align: center;
+    text-transform: uppercase;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    transition: filter .2s;
+    user-select: none;
+    -webkit-user-select: none;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 200px;
+    height: 45px;
+  }
+
+  .button-19:after {
+    background-clip: padding-box;
+    background-color: #002b47;
+    border: solid transparent;
+    border-radius: 16px;
+    border-width: 0 0 4px;
+    bottom: -4px;
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+  }
+
+  .button-19:main,
+.button-19:focus {
+  user-select: auto;
+}
+
+.button-19:hover:not(:disabled) {
+    filter: brightness(1.1);
+    -webkit-filter: brightness(1.1);
+  }
+
+  .button-19:disabled {
+    cursor: auto;
+  }
+  
+  .button-19:active {
+    border-width: 4px 0 0;
+    background: none;
+  }

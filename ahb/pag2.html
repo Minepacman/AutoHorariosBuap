@@ -1,0 +1,176 @@
+
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horario</title>
+    <link rel="stylesheet" href="estilos/style.css">
+    <!-- Agrega la referencia a jQuery -->
+    <script src="JS/jquery-3.7.1.min.js"></script> 
+</head>
+
+<body>
+    <header>
+        <div id="logo">
+            <img src="jpg/logo2.png" alt="Logo de la Universidad">
+        </div>
+        <h1 id="titulo">Auto Horario BUAP</h1>
+    </header>
+   
+    <div id="contenido">
+
+        <form id="combo">
+
+
+            <div class="selects">
+                <label for="select_materias1" id="titulo_materias">Selecciona las materias a cursar este semestre</label>
+
+                <!-- Campo de Búsqueda -->
+                <input type="text" id="busqueda" onkeyup="filtrarMaterias()" placeholder="Buscar materias">
+
+                <!-- Lista de Materias Disponibles -->
+                <select name="select_materias[]" id="select_materias1" multiple>
+                </select>
+            </div>
+
+            <!-- Botones Agregar/Quitar -->
+            <div id="botones">
+                <button id="agregar" type="button" onclick="agregarMateria()">Agregar</button>
+                <button id="quitar" type="button" onclick="quitarMateria()">Quitar</button>
+            </div>
+
+            <!-- Lista de Materias Seleccionadas -->
+            <select name="materias_seleccionadas[]" id="select_materias2" multiple>
+                <!-- Opciones se llenarán dinámicamente con JavaScript -->
+            </select>
+
+            <div id="turnoRadio">
+                <input type="radio" name="miRadio" id="matutino" value="matutino" title="Turno Matutino">
+                <label for="matutino">Matutino</label>
+                
+                <input type="radio" name="miRadio" id="vespertino" value="vespertino" title="Turno Vespertino">
+                <label for="vespertino">Vespertino</label>
+                
+                <input type="radio" name="miRadio" id="mixto" value="mixto" title="Turno Mixto">
+                <label for="mixto">Mixto</label>
+            </div>
+
+            <button class="button-19" type="button" onclick="redirigirAPagina()">Generar Horarios</button>
+
+        </form>
+
+        
+    </div>
+
+    <script>
+
+        function agregarMateria() {
+            $("#select_materias1 option:selected").appendTo("#select_materias2");
+            actualizarSessionStorage();
+        }
+
+        function quitarMateria() {
+            $("#select_materias2 option:selected").appendTo("#select_materias1");
+            actualizarSessionStorage();    
+        }
+
+        function filtrarMaterias() {
+            var input, filter, select, option, i;
+            input = document.getElementById("busqueda");
+            filter = input.value.toUpperCase();
+            select = document.getElementById("select_materias1");
+            option = select.getElementsByTagName("option");
+
+            for (i = 0; i < option.length; i++) {
+                if (option[i].text.toUpperCase().indexOf(filter) > -1) {
+                    option[i].style.display = "";
+                } else {
+                    option[i].style.display = "none";
+                }
+            }
+        }
+
+        // Obtener la carrera seleccionada almacenada en sessionStorage
+        var carreraSeleccionada = sessionStorage.getItem('carreraSeleccionada');
+
+        // Verificar si se almacenó una carrera antes de continuar
+        if (!carreraSeleccionada) {
+            alert('Por favor, selecciona una carrera en la página anterior.');
+            // Redirigir a la página anterior o a donde sea necesario
+            window.location.href = 'index.html';
+        }
+
+        // Llenar el campo de texto o hacer otras acciones según la carrera seleccionada
+        // ...
+
+        $(document).ready(function () {
+            // Hacer la solicitud AJAX al archivo PHP pasando la carrera seleccionada
+            var materiasSeleccionadas = JSON.parse(sessionStorage.getItem('materiasSeleccionadas')) || [];
+            var turnoSeleccionado = sessionStorage.getItem('turnoSeleccionado');
+
+            // Evento change para los radio buttons
+            $('input[name="miRadio"]').change(function () {
+                var turnoSeleccionado = $('input[name="miRadio"]:checked').val();
+                sessionStorage.setItem('turnoSeleccionado', turnoSeleccionado);
+            });
+
+            $.ajax({
+                url: 'get_materias.php',
+                type: 'GET',
+                data: {  
+                    carreraSeleccionada: carreraSeleccionada,
+                    materiasSeleccionadas: materiasSeleccionadas,
+                    turnoSeleccionado: turnoSeleccionado
+                }, // Pasar la carrera seleccionada como parámetro
+                dataType: 'json',
+                success: function (data) {
+                    // Rellenar dinámicamente el select con las materias
+                    var select = $('#select_materias1');
+                    var materias = {};  // Utilizamos un objeto para evitar materias duplicadas
+
+                    $.each(data, function (index, materia) {
+                        // Verificar si la materia ya fue agregada al select
+                        if (!materias[materia.Materia]) {
+                            select.append('<option value="' + materia.Clave + '">' + materia.Materia + '</option>');
+                            materias[materia.Materia] = true;  // Marcamos la materia como agregada
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.log('Error al obtener las materias:', error);
+                }
+            });
+        });
+        
+        function actualizarSessionStorage() {
+            var materiasSeleccionadas = $("#select_materias2").val();
+            var turnoSeleccionado = $("input[name='miRadio']:checked").val();
+
+            sessionStorage.setItem('materiasSeleccionadas', JSON.stringify(materiasSeleccionadas));
+            sessionStorage.setItem('turnoSeleccionado', turnoSeleccionado);
+        }
+
+        function redirigirAPagina() {
+    var materiasSeleccionadas = $("#select_materias2").val();
+    
+    if (!materiasSeleccionadas || materiasSeleccionadas.length === 0) {
+        alert('Por favor, selecciona al menos una materia.');
+        return false; // No redirigir si no se seleccionó ninguna materia
+    }
+
+    sessionStorage.setItem('materiasSeleccionadas', JSON.stringify(materiasSeleccionadas));
+    var turnoSeleccionado = $("input[name='miRadio']:checked").val();
+    sessionStorage.setItem('turnoSeleccionado', turnoSeleccionado);
+
+    window.location.href = "pag3.html";
+    return true; // Redirigir solo si hay materias seleccionadas
+}
+
+
+    </script>
+
+</body>
+</html>
+
+

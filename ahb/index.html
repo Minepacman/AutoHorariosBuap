@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilos/style.css">
+    <title>Auto Horario BUAP</title>
+    <script src="JS/jquery-3.7.1.min.js"></script> 
+</head>
+<body>
+    
+    <header>
+        <div id="logo">
+            <img src="jpg/logo2.png" alt="Logo de la Universidad">
+        </div>
+        <h1 id="titulo">Auto Horario BUAP</h1>
+    </header>
+
+    <div id="contenido">
+
+        <div id="parrafos">
+            <p>¡Bienvenido al Generador de Horarios!</p> 
+            <p>En este práctico sistema, podrás personalizar tu horario académico de manera sencilla y eficiente.</p>
+            <p>Comienza seleccionando tu carrera y plan académico. </p>
+            <p>Después, elige las materias que deseas cursar y especifica si prefieres un horario matutino, vespertino o mixto.</p>
+            <p>Estamos aquí para ayudarte a organizar tu tiempo de estudio de la mejor manera posible. ¡Comencemos creando el horario perfecto para ti!</p>
+        </div>
+        
+        <div id="selects">
+            <label for="select_carreras">Selecciona tu carrera:</label>
+            <select name="select_carreras" id="select_carreras" title="Carrera">
+                <option value="" disabled selected>Selecciona tu carrera</option>
+                <option value="Ing. Ciencias de la computacion">Ing. Ciencias de la computación</option>
+                <option value="Lic. Ciencias de la computacion">Lic. Ciencias de la computación</option>
+                <option value="Ing. en tecnologias de la informacion">Ing. en Tecnologías de la Información</option>
+            </select>
+        </div>
+
+        <button class="button-19" onclick="redirigirAPagina()">Siguiente</button>
+
+    </div>
+
+    <script>
+        function redirigirAPagina() {
+            var carreraSeleccionada = document.getElementById('select_carreras').value;
+
+            // Verificar si se seleccionó una carrera antes de redirigir
+            if (carreraSeleccionada !== "") {
+                // Almacenar la carrera seleccionada en sessionStorage para que esté disponible en la siguiente página
+                sessionStorage.setItem('carreraSeleccionada', carreraSeleccionada);
+
+                // Redirigir a la siguiente página
+                window.location.href = 'pag2.html';
+            } else {
+                alert('Por favor, selecciona una carrera antes de continuar.');
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+
